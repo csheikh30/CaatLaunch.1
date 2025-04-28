@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - CaatLaunch</title>
+  <style>
+    body { font-family: 'Helvetica Neue', sans-serif; padding: 40px; text-align: center; }
+    input, button { padding: 10px; margin-top: 10px; }
+    .btn { background: #4F46E5; color: white; padding: 15px 30px; border-radius: 8px; text-decoration: none; display: inline-block; margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+  <h1>Create Your Account</h1>
+  <form id="signupForm">
+    <div>
+      <label for="username">Username:</label>
+      <input type="text" id="username" required><br>
+    </div>
+    <div>
+      <label for="email">Email:</label>
+      <input type="email" id="email" required><br>
+    </div>
+    <div>
+      <label for="password">Password:</label>
+      <input type="password" id="password" required><br>
+    </div>
+    <button type="submit" class="btn">Sign Up</button>
+  </form>
+
+  <div id="signupMessage" style="color: green; margin-top: 20px;"></div>
+
+  <script>
+    document.getElementById('signupForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      localStorage.setItem('username', username);
+      localStorage.setItem('email', email);
+      localStorage.setItem('password', password);
+
+      document.getElementById('signupMessage').textContent = "Account created successfully! You can now start customizing your token.";
+      
+      setTimeout(function() {
+        window.location.href = 'token-customization.html';
+      }, 2000);
+    });
+  </script>
+
+</body>
+</html>
+    
