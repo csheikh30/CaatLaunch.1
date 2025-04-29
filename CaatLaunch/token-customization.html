@@ -1,21 +1,91 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Token Customization - CaatLaunch</title>
+  <title>Deploy Token - CaatLaunch</title>
+  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
   <style>
-    body { font-family: 'Helvetica Neue', sans-serif; padding: 40px; }
-    .btn { background: #4F46E5; color: white; padding: 15px 30px; border-radius: 8px; text-decoration: none; margin-top: 20px; }
+    body { font-family: 'Helvetica Neue', sans-serif; padding: 40px; text-align: center; }
+    .btn { background: #4F46E5; color: white; padding: 15px 30px; border-radius: 8px; text-decoration: none; }
+    .deploy-status { margin-top: 40px; font-size: 16px; color: green; }
   </style>
 </head>
 <body>
 
-  <h1>Customize Your Token</h1>
-  <p>Here you can adjust the settings for your token launch.</p>
-  <a href="projects.html">"Save & Continue"</a>
+  <h1>Deploy Your Token</h1>
+  <p>Once your token is ready, click "Deploy" to deploy it to the Ethereum blockchain.</p>
+
+  <div>
+    <p><strong>Token Name:</strong> <span id="deployName"></span></p>
+    <p><strong>Token Symbol:</strong> <span id="deploySymbol"></span></p>
+    <p><strong>Total Supply:</strong> <span id="deploySupply"></span></p>
+  </div>
+
+  <button class="btn" id="deployButton">Deploy Token</button>
+
+  <div class="deploy-status" id="deployStatus"></div>
+
+  <script>
+    if (typeof window.ethereum !== 'undefined') {
+      var web3 = new Web3(window.ethereum);
+      ethereum.request({ method: 'eth_requestAccounts' })
+        .then(accounts => {
+          console.log('Connected account:', accounts[0]);
+        })
+        .catch(err => {
+          alert('Please connect your MetaMask wallet!');
+        });
+    } else {
+      alert('Please install MetaMask!');
+    }
+
+    const tokenName = localStorage.getItem('tokenName');
+    const tokenSymbol = localStorage.getItem('tokenSymbol');
+    const tokenSupply = localStorage.getItem('totalSupply');
+
+    document.getElementById('deployName').textContent = tokenName;
+    document.getElementById('deploySymbol').textContent = tokenSymbol;
+    document.getElementById('deploySupply').textContent = tokenSupply;
+
+    async function deployToken() {
+      const accounts = await web3.eth.getAccounts();
+      const userAccount = accounts[0];
+      const supply = web3.utils.toWei(tokenSupply, 'ether');
+
+      const contractABI = [
+        {
+          "inputs": [
+            { "internalType": "string", "name": "name", "type": "string" },
+            { "internalType": "string", "name": "symbol", "type": "string" },
+            { "internalType": "uint256", "name": "initialSupply", "type": "uint256" }
+          ],
+          "name": "constructor",
+          "type": "constructor"
+        }
+      ];
+      const contractBytecode = '0x...'; // Insert your contract bytecode here
+
+      const contract = new web3.eth.Contract(contractABI);
+      contract.deploy({
+        data: contractBytecode,
+        arguments: [tokenName, tokenSymbol, supply],
+      })
+      .send({ from: userAccount, gas: 3000000 })
+      .on('receipt', receipt => {
+        document.getElementById('deployStatus').innerHTML = `
+          <p>Token deployed successfully!</p>
+          <p><strong>Transaction Hash:</strong> <a href="https://etherscan.io/tx/${receipt.transactionHash}" target="_blank">${receipt.transactionHash}</a></p>
+        `;
+      })
+      .on('error', error => {
+        console.error(error);
+        alert('Token deployment failed!');
+      });
+    }
+
+    document.getElementById('deployButton').addEventListener('click', deployToken);
+  </script>
 
 </body>
 </html>
-    
